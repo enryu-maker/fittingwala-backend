@@ -1,14 +1,17 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from fittingwala.serializers import MyTokenObtainPairSerializer
+from fittingwala.serializers import CategorySerializer, SubCategorySerializer, \
+    ProductSerializer
 from rest_framework.views import APIView
-from fittingwala.view_models import FitUserViewModel
+from fittingwala.view_models import FitUserViewModel, AllCombViewModel
 from rest_framework.response import Response
 from rest_framework import status
-from fittingwala.models import FitUser
+from fittingwala.models import FitUser, Category, SubCategory, Product
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
+from rest_framework import viewsets
+
 
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
@@ -72,3 +75,34 @@ class VerifyFitUserView(APIView):
             user.save()
 
         return Response(status=status.HTTP_201_CREATED, data={"message": "User verified successfully"})
+
+
+class AllCombView(APIView):
+    permission_classes = (IsAuthenticated,)
+    view_model = AllCombViewModel
+
+    def get(self, request):
+        view_retrive = self.view_model()
+        resp = view_retrive.run_query()
+        return Response(
+            status=status.HTTP_200_OK,
+            data=resp
+        )
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+
+class SubCategoryViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = SubCategorySerializer
+    queryset = SubCategory.objects.all()
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProductSerializer
+    queryset = Product.objects.all()

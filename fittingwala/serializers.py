@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from fittingwala.models import FitUser
+from fittingwala.models import FitUser, Category, SubCategory, Product
 from django.db.models import Q
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -25,12 +25,25 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.is_active:
             raise serializers.ValidationError('This user has been deactivated.')
 
-        return {
-            'username': user.username,
-            'password': user.password
-        }
-
-    @classmethod
-    def get_token(cls, user):
+    def get_token(self, user):
         token = RefreshToken.for_user(user)
         return token
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class SubCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = '__all__'
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+
