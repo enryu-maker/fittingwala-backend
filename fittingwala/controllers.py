@@ -6,10 +6,32 @@ from fittingwala.view_models import FitUserViewModel
 from rest_framework.response import Response
 from rest_framework import status
 from fittingwala.models import FitUser
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models import Q
+from rest_framework.exceptions import ValidationError
 
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
-    serializer_class = MyTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        user = request.data.get('username')
+        user = FitUser.objects.filter(Q(username=user) | Q(email=user)).first()
+        if user is None:
+            raise ValidationError('A user with this email/username and password is not found.')
+        if not user.check_password(request.data.get('password')):
+            raise ValidationError('A user with this email/username and password is not found.')
+        if not user.is_active:
+            raise ValidationError('This user has been deactivated.')
+        return Response(status=status.HTTP_200_OK, data={
+            'access': str(RefreshToken.for_user(user).access_token),
+            'refresh': str(RefreshToken.for_user(user)),
+            'user': {
+                'username': user.username,
+                'email': user.email,
+                'mobile': user.mobile,
+                'is_active': user.is_active
+            }
+        })
 
 
 class RegisterFitUserView(APIView):
@@ -18,8 +40,14 @@ class RegisterFitUserView(APIView):
 
     def post(self, request):
         data = request.data
-        view_object = self.view_model(**data)
-        user = view_object.create_user()
+        view_object = self.view_model(
+            table=FitUser,
+            username=data.get('username'),
+            email=data.get('email'),
+            password=data.get('password'),
+            mobile=data.get('mobile')
+        )
+        view_object.create_user()
         return Response(status=status.HTTP_201_CREATED, data={"message": "User created successfully, Please verify "
                                                                          "your email"})
 
@@ -29,7 +57,7 @@ class VerifyFitUserView(APIView):
     view_model = FitUserViewModel
 
     @staticmethod
-    def post(self, request):
+    def post(request):
         code = request.data.get('code')
         user = request.data.get('email')
 
@@ -44,4 +72,3 @@ class VerifyFitUserView(APIView):
             user.save()
 
         return Response(status=status.HTTP_201_CREATED, data={"message": "User verified successfully"})
-

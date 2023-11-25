@@ -4,24 +4,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-class FitUserManager(models.Manager):
-    def create_user(self, username, email, password, mobile):
-        user = self.model(username=username, email=email, mobile=mobile)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, username, email, password, mobile):
-        user = self.create_user(username=username, email=email, password=password, mobile=mobile)
-        user.is_admin = True
-        user.save(using=self._db)
-        return user
-
-
 class FitUser(AbstractUser):
     mobile = models.CharField(max_length=10, null=True, blank=True)
-    verification_code = models.CharField(max_length=10, null=True, blank=True)
-    objects = FitUserManager()
+    verification_code = models.IntegerField(null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+    password = models.CharField(max_length=100)
 
     def __str__(self):
         return self.username
