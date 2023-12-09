@@ -78,7 +78,7 @@ class VerifyFitUserView(APIView):
 
 
 class AllCombView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     view_model = AllCombViewModel
 
     def get(self, request):
@@ -91,18 +91,18 @@ class AllCombView(APIView):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
 
 
 class SubCategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = SubCategorySerializer
     queryset = SubCategory.objects.all()
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
