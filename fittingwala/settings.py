@@ -193,3 +193,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+
+
+AUTHENTICATION_BACKENDS = [
+    'fittingwala.authy.MyCustomBackend',
+]

@@ -81,7 +81,10 @@ class FitUserViewModel:
         return user
 
     def verify_user(self):
+        #print logs
+        print(f"Verification code for {self.email} is {self.table.objects.get(email=self.email).verification_code}")
         # send verification email
+
         try:
             send_mail(
                 'Verify your email',

@@ -21,6 +21,10 @@ class FitUser(AbstractUser):
 
         super(FitUser, self).save(*args, **kwargs)
 
+    @property
+    def is_authenticated(self):
+        return True
+
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
